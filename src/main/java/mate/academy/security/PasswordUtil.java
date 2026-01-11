@@ -6,6 +6,9 @@ import java.security.SecureRandom;
 
 public class PasswordUtil {
 
+    private PasswordUtil() {
+    }
+
     public static String generateSalt() {
         byte[] salt = new byte[16];
         new SecureRandom().nextBytes(salt);

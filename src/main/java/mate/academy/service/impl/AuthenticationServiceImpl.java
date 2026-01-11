@@ -23,13 +23,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RegistrationException("User already exists with email: " + email);
         }
 
-        String salt = PasswordUtil.generateSalt();
-        String hashedPassword = PasswordUtil.hashPassword(password, salt);
-
         User user = new User();
         user.setEmail(email);
-        user.setSalt(salt);
-        user.setPassword(hashedPassword);
 
         return userService.add(user);
     }
@@ -38,15 +33,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public User login(String email, String password)
             throws AuthenticationException {
 
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new AuthenticationException(
-                        "User not found with email: " + email));
+        User user = userService.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            throw new AuthenticationException("Incorrect email or password");
+        }
 
         String hashedInputPassword =
                 PasswordUtil.hashPassword(password, user.getSalt());
 
         if (!hashedInputPassword.equals(user.getPassword())) {
-            throw new AuthenticationException("Wrong password");
+            throw new AuthenticationException("Incorrect email or password");
         }
 
         return user;
