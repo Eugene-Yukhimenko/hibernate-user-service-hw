@@ -25,6 +25,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = new User();
         user.setEmail(email);
+        user.setPassword(password);
 
         return userService.add(user);
     }
@@ -35,14 +36,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = userService.findByEmail(email).orElse(null);
 
-        if (user == null) {
-            throw new AuthenticationException("Incorrect email or password");
-        }
-
-        String hashedInputPassword =
-                PasswordUtil.hashPassword(password, user.getSalt());
-
-        if (!hashedInputPassword.equals(user.getPassword())) {
+        if (user == null
+                || !PasswordUtil.hashPassword(password, user.getSalt())
+                .equals(user.getPassword())) {
             throw new AuthenticationException("Incorrect email or password");
         }
 
